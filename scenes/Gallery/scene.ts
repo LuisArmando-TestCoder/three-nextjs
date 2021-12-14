@@ -1,7 +1,3 @@
-/**
- * @todo there should be three canvases on each extreme
- */
-
 import * as THREE from "three";
 import Victor from "Victor";
 import gsap from "gsap";
