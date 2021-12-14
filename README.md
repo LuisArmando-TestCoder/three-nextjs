@@ -10,9 +10,9 @@
     # Which will create:
     # ./components/
     # ./components/L0
-    # ./components/l0/MyComponent
-    # ./components/l0/MyComponent/index.ts
-    # ./components/l0/MyComponent/styles.module.scss
+    # ./components/L0/MyComponent
+    # ./components/L0/MyComponent/index.ts
+    # ./components/L0/MyComponent/styles.module.scss
     ```
 
     If more scopes are needed they can be added at auto/modules/export.py
