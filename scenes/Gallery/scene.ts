@@ -128,30 +128,6 @@ function getPexelsSrc(index: number, pair: number): string {
 }
 
 export default {
-  // tags: {
-  //   object: () =>
-  //     pathPositions.map(async ({ x, z, laneType }, index) => {
-  //       const text = await Text({
-  //         text: "x" + x + ",z" + z + "\n" + laneType + index,
-  //         path: "./fonts/Montserrat_Regular.json",
-  //         color: "#f00",
-  //         thickness: 0.1,
-  //         size: 0.5,
-  //       });
-
-  //       text.position.set(x * pathSize, 3, z * pathSize);
-
-  //       return text;
-  //     }),
-  //   onAnimation: ({ object3D }: SceneExport, canvasState: CanvasState) => {
-  //     for (const child of object3D.children)
-  //       child.lookAt(
-  //         canvasState.camera?.position.x as number,
-  //         canvasState.camera?.position.y as number,
-  //         canvasState.camera?.position.z as number
-  //       );
-  //   },
-  // } as unknown as Scene,
   path: {
     object: () =>
       consulters.getProceduralGroup([
@@ -159,10 +135,10 @@ export default {
           // floor through the path
           dimensions: [pathPositions.length],
           material: getQuixelMaterial({
-            multiplyScalar: pathSize,
-            name: "Wood_Parquet",
-            code: "uenndanl",
-            mapNames: ["AO", "Displacement"],
+            multiplyScalar: pathSize / 4,
+            name: "Marble_Polished",
+            code: "vdfjajdv",
+            mapNames: ["AO", "Displacement", "Metalness"],
           }),
           geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
           getIntersectionMesh: getFloorTable(0),
