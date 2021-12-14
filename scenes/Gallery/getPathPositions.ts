@@ -212,7 +212,25 @@ function getDisplayPosition({
   return lanePositions[laneName];
 }
 
+function cleanLaneTypes(roomsWithWalkPaths: RoomPosition[]): void {
+  roomsWithWalkPaths.forEach((roomPosition, index) => {
+    if (index > 0 && index < roomsWithWalkPaths.length - 1) {
+      if (roomPosition.laneType === "corner") {
+        roomPosition.laneType =
+        roomsWithWalkPaths[index - 1].x !== roomPosition.x &&
+        roomsWithWalkPaths[index + 1].z !== roomPosition.z ||
+        roomsWithWalkPaths[index - 1].z !== roomPosition.z &&
+        roomsWithWalkPaths[index + 1].x !== roomPosition.x
+            ? "corner"
+            : "frontal";
+      }
+    }
+  });
+}
+
 function getIntrudedWalkPaths(roomsWithWalkPaths: RoomPosition[]): WalkPath[] {
+  cleanLaneTypes(roomsWithWalkPaths);
+
   return roomsWithWalkPaths.map((roomPosition, index) => {
     const walkPath: WalkPath = { ...roomPosition, displays: [] };
 

@@ -13,7 +13,8 @@ import getQuixelMaterial from "../../utils/getQuixelMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 import getPathPositions from "./getPathPositions";
 
-const pathPositions = getPathPositions(798838645950457, 4); // 123456789 fails miserably, use it for debugging
+const pathPositions = getPathPositions(123456789, 2);
+// 123456789 fails miserably, use it for debugging
 const pathSize = 10;
 const displacement = pathSize / 2;
 
@@ -44,6 +45,32 @@ function getPexelsSrc(index: number, pair: number): string {
 }
 
 export default {
+  tags: {
+    object: () =>
+      pathPositions.map(({ laneType, x, z }) =>
+        Text({
+          text: `X:${x}-Z:${z}\n${laneType}`,
+          path: "./fonts/Montserrat_Regular.json",
+          color: "#f00",
+          size: .5,
+          thickness: .1
+        })
+      ),
+    onSetup({ object3D }: SceneExport) {
+      object3D.children.forEach(({ position }, index) => {
+        position.set(
+          pathPositions[index].x * pathSize,
+          2,
+          pathPositions[index].z * pathSize
+        );
+      });
+    },
+    onAnimation({ object3D }: SceneExport, { camera }: CanvasState) {
+      object3D.children.forEach((child) => {
+        child.lookAt(camera?.position || new THREE.Vector3());
+      });
+    },
+  } as unknown as Scene,
   path: {
     object: () =>
       consulters.getProceduralGroup([
