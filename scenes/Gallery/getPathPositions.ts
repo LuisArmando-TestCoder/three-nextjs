@@ -1,19 +1,28 @@
-/**
- * @todo now put the positions for the canvases
- * ... and their respective rotations
- * ... on each room. Remember to set the
- * ... [side by side] on downwards,
- * ... [downward and opposite] on corners,
- * ... [up and down] on side-lanes ------
- */
-
 export type LaneType = "frontal" | "side-lane" | "corner";
 
-export interface RoomPosition {
-  laneType: LaneType;
+export interface PlainVector {
   x: number;
   z: number;
 }
+
+export interface RoomPosition extends PlainVector {
+  laneType: LaneType;
+}
+
+export interface WalkPath extends RoomPosition {
+  displays?: {
+    position?: PlainVector;
+    rotation?: number;
+  }[];
+}
+
+export type LaneName =
+  | "frontal0"
+  | "frontal1"
+  | "side-lane0"
+  | "side-lane1"
+  | "corner0"
+  | "corner1";
 
 function getRoomPosition(
   frontalSpace: number
@@ -46,7 +55,7 @@ function getRooms(seed: number, frontalSpace: number): RoomPosition[] {
 }
 
 function getRandomSeed(): number {
-  return Math.floor(Math.random() * 1000000000000000);
+  return Math.floor(Math.random() * 1e16);
 }
 
 function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
@@ -91,17 +100,158 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
   return newRooms;
 }
 
+function getCornerPosition({
+  index,
+  axis,
+  displayIndex,
+  roomsWithWalkPaths,
+}: {
+  index: number;
+  axis: "x" | "z";
+  displayIndex: number;
+  roomsWithWalkPaths: RoomPosition[];
+}): number {
+  const cornerPosition =
+    roomsWithWalkPaths[index][axis] -
+    (roomsWithWalkPaths[index + Math.sign(displayIndex - 0.5)]?.[axis] ??
+      roomsWithWalkPaths[index][axis]);
+
+  return cornerPosition;
+}
+
+function getCanvasRealRotation(
+  roomsWithWalkPaths: RoomPosition[],
+  index: number,
+  displayIndex: number
+): number {
+  return (
+    Math.PI / (displayIndex + 1) -
+    (Math.PI / 2) * +(roomsWithWalkPaths[index - 1].laneType === "side-lane")
+  );
+}
+
+function getLaneName({
+  roomsWithWalkPaths,
+  index,
+  displayIndex,
+}: {
+  roomsWithWalkPaths: RoomPosition[];
+  index: number;
+  displayIndex: number;
+}): LaneName {
+  const laneType: LaneType = roomsWithWalkPaths[index].laneType;
+  const laneName = (laneType + displayIndex) as LaneName;
+
+  return laneName;
+}
+
+function getDisplayRotation({
+  index,
+  displayIndex,
+  roomsWithWalkPaths,
+}: {
+  index: number;
+  displayIndex: number;
+  roomsWithWalkPaths: RoomPosition[];
+}): number {
+  const cornerRotation = getCanvasRealRotation(
+    roomsWithWalkPaths,
+    index,
+    displayIndex
+  );
+  const laneRotations = {
+    frontal0: -Math.PI / 2,
+    frontal1: Math.PI / 2,
+    "side-lane0": 0,
+    "side-lane1": Math.PI,
+    corner0: cornerRotation,
+    corner1: cornerRotation,
+  };
+  const laneName = getLaneName({ index, displayIndex, roomsWithWalkPaths });
+
+  return laneRotations[laneName];
+}
+
+function getDisplayPosition({
+  index,
+  displayIndex,
+  roomsWithWalkPaths,
+}: {
+  index: number;
+  displayIndex: number;
+  roomsWithWalkPaths: RoomPosition[];
+}) {
+  const cornerPosition = {
+    x: getCornerPosition({
+      index,
+      axis: "x",
+      displayIndex,
+      roomsWithWalkPaths,
+    }),
+    z: getCornerPosition({
+      index,
+      axis: "z",
+      displayIndex,
+      roomsWithWalkPaths,
+    }),
+  };
+  const laneName = getLaneName({ index, displayIndex, roomsWithWalkPaths });
+  const isFrontal = laneName[0] === "f";
+  const lanePosition = {
+    [isFrontal ? "x" : "z"]: -Math.sign(displayIndex - 0.5),
+  };
+  const lanePositions = {
+    frontal0: lanePosition,
+    frontal1: lanePosition,
+    "side-lane0": lanePosition,
+    "side-lane1": lanePosition,
+    corner0: cornerPosition,
+    corner1: cornerPosition,
+  };
+
+  return lanePositions[laneName];
+}
+
+function getIntrudedWalkPaths(roomsWithWalkPaths: RoomPosition[]): WalkPath[] {
+  return roomsWithWalkPaths.map((roomPosition, index) => {
+    const walkPath: WalkPath = { ...roomPosition, displays: [] };
+
+    if (index > 0 && index < roomsWithWalkPaths.length - 1) {
+      [0, 1].forEach((displayIndex) => {
+        const { x, z } = getDisplayPosition({
+          index,
+          displayIndex,
+          roomsWithWalkPaths,
+        });
+        const rotation = getDisplayRotation({
+          index,
+          displayIndex,
+          roomsWithWalkPaths,
+        });
+
+        walkPath.displays?.push({
+          position: {
+            x: x ?? 0,
+            z: z ?? 0,
+          },
+          rotation,
+        });
+      });
+    }
+
+    return walkPath;
+  });
+}
+
 function getPathPositions(
   seed = getRandomSeed(),
   frontalSpace = 2
-): RoomPosition[] {
-  console.log(seed);
-  // make sure to capture neat new good looking seeds
-
+): WalkPath[] {
   const roomsPaths = getRooms(seed, frontalSpace);
   const roomsWithWalkPaths = getRoomsWithWalkPaths(roomsPaths);
+  const pathPositions = getIntrudedWalkPaths(roomsWithWalkPaths);
 
-  return roomsWithWalkPaths;
+  return pathPositions;
 }
 
 export default getPathPositions;
