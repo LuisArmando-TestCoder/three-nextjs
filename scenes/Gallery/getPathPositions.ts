@@ -119,14 +119,19 @@ function getCornerPosition({
   return cornerPosition;
 }
 
-function getCanvasRealRotation(
+function getCornerRotation(
   roomsWithWalkPaths: RoomPosition[],
   index: number,
   displayIndex: number
 ): number {
   return (
-    Math.PI / (displayIndex + 1) -
-    (Math.PI / 2) * +(roomsWithWalkPaths[index - 1].laneType === "side-lane")
+    (Math.PI / 2) *
+    (displayIndex +
+      (+(
+        roomsWithWalkPaths[index + 1].laneType === "frontal" ||
+        roomsWithWalkPaths[index + 1].laneType === "corner"
+      ) %
+        2))
   );
 }
 
@@ -154,7 +159,7 @@ function getDisplayRotation({
   displayIndex: number;
   roomsWithWalkPaths: RoomPosition[];
 }): number {
-  const cornerRotation = getCanvasRealRotation(
+  const cornerRotation = getCornerRotation(
     roomsWithWalkPaths,
     index,
     displayIndex
@@ -217,10 +222,10 @@ function cleanLaneTypes(roomsWithWalkPaths: RoomPosition[]): void {
     if (index > 0 && index < roomsWithWalkPaths.length - 1) {
       if (roomPosition.laneType === "corner") {
         roomPosition.laneType =
-        roomsWithWalkPaths[index - 1].x !== roomPosition.x &&
-        roomsWithWalkPaths[index + 1].z !== roomPosition.z ||
-        roomsWithWalkPaths[index - 1].z !== roomPosition.z &&
-        roomsWithWalkPaths[index + 1].x !== roomPosition.x
+          (roomsWithWalkPaths[index - 1].x !== roomPosition.x &&
+            roomsWithWalkPaths[index + 1].z !== roomPosition.z) ||
+          (roomsWithWalkPaths[index - 1].z !== roomPosition.z &&
+            roomsWithWalkPaths[index + 1].x !== roomPosition.x)
             ? "corner"
             : "frontal";
       }

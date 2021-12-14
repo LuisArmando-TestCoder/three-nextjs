@@ -14,7 +14,6 @@ import PointLightSet from "../../meshes/PointLightSet";
 import getPathPositions from "./getPathPositions";
 
 const pathPositions = getPathPositions(123456789, 2);
-// 123456789 fails miserably, use it for debugging
 const pathSize = 10;
 const displacement = pathSize / 2;
 
