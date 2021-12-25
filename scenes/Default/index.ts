@@ -1,6 +1,8 @@
 import presetScene, { actions, types, consulters, events } from "scene-preset";
 import * as THREE from "three";
 import liquidMetalMaterial from "../../materials/liquidMetal";
+import starfieldMaterial from "../../materials/starfield";
+import worleyNoiseWatersMaterial from "../../materials/worleyNoiseWaters";
 
 actions.addSceneSetupIntrude(
   ({ presetConfiguration, camera }: types.state.CanvasState) => {
@@ -17,7 +19,11 @@ export default (id: string) =>
   presetScene(
     {
       async setup(canvasState: types.state.CanvasState) {
-        [liquidMetalMaterial].forEach((material) => {
+        [
+          liquidMetalMaterial,
+          starfieldMaterial,
+          worleyNoiseWatersMaterial,
+        ].forEach((material) => {
           actions.setUniforms(material);
         });
 
