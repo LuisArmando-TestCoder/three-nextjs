@@ -16,7 +16,7 @@ export default (id: string) =>
 
         sceneEvents?.onSetup(canvasState);
       },
-      async animate(canvasState: types.state.CanvasState) {
+      animate(canvasState: types.state.CanvasState) {
         sceneEvents?.onAnimation(canvasState);
       },
     },

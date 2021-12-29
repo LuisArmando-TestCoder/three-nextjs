@@ -32,7 +32,7 @@ executeConditionalPath(
         "\n" +
         "        sceneEvents?.onSetup(canvasState);\n" +
         "      },\n" +
-        "      async animate(canvasState: types.state.CanvasState) {\n" +
+        "      animate(canvasState: types.state.CanvasState) {\n" +
         "        sceneEvents?.onAnimation(canvasState);\n" +
         "      },\n" +
         "    },\n" +
